@@ -7,11 +7,11 @@ Gem::Specification.new do |spec|
   spec.name          = "stateful_validator"
   spec.version       = StatefulValidator::VERSION
   spec.authors       = ["Jeremy Linder"]
-  spec.email         = ["jlinder@boardpackager.com"]
+  spec.email         = ["deathbyjer@gmail.com"]
 
-  spec.summary       = %q{TODO: Write a short summary, because RubyGems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = %q{Stateful validations that can be used in the controller}
+  spec.description   = %q{While ActiveRecord validations are excellent at discerning data integrity, they should not (necessarily) be used for business logic checks, as those are appropriately bound to the controller, whose job it is to be aware of application state. Stateful Validators allow us to maintain a clean scheme of sanitizing and validating our input in a testable fashion.}
+  #spec.homepage      = "TODO: Put your gem's website or public repo URL here."
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
