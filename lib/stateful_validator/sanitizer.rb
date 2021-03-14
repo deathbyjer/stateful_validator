@@ -1,4 +1,6 @@
 class StatefulValidator::Sanitizer
+  require "stateful_validator/sanitizer/html"
+  
   attr_accessor :params
   attr_accessor :controller
   attr_accessor :model
