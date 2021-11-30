@@ -1,3 +1,3 @@
-class ValidationError < StandardError
+class StatefulValidator::ValidationError < StandardError
 
 end
