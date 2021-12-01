@@ -50,7 +50,7 @@ module StatefulValidator::Controller
     details = self.class._lookup_sanitizer params[:action]
     return nil unless details
 
-    @sanitizer = details[:klass].new params[details[:param_key]].to_unsafe_h, controller: self
+    @sanitizer = details[:klass].new params[details[:param_key]]&.to_unsafe_h, controller: self
     @sanitizer.set_ids_from_params! params, details[:ids]
     @sanitizer
   end
