@@ -1,6 +1,6 @@
 class StatefulValidator::Sanitizer
-  require "stateful_validator/sanitizer/html"
-  
+  require 'stateful_validator/sanitizer/html'
+
   attr_accessor :params
   attr_accessor :controller
   attr_accessor :model
@@ -25,8 +25,9 @@ class StatefulValidator::Sanitizer
   end
 
   def has?(key)
-    return true if self.params.key?(key.to_sym)
-    return true if self.params.key?("#{key}_id".to_sym) 
+    return true if params.key?(key.to_sym)
+    return true if params.key?("#{key}_id".to_sym)
+
     false
   end
 end
