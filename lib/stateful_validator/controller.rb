@@ -357,7 +357,12 @@ module StatefulValidator::Controller
 
   def param_list_for_population(key, list = false)
     # We need to always return something
-    safe_params = params.permit(key => {}).to_hash[key.to_s]
+    safe_params = params
+    # If Parameters, then permit the parameters we need and conver to hash
+    safe_params = params.permit(key => {}).to_hash if params.is_a?(ActionController::Parameters)
+    # Get just the part of the has we need
+    safe_params = safe_params[key.to_s] || safe_params[key.to_sym] if safe_params.is_a?(Hash)
+    
     return list ? [] : [nil] unless safe_params.present?
 
     return safe_params if safe_params.is_a?(Array)
