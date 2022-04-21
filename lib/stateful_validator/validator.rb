@@ -13,9 +13,9 @@ class StatefulValidator::Validator
   def model
     return @model if @model
     return nil unless controller
-    return nil unless controller.respond_to?(:model)
+    return nil unless controller.respond_to?(:model, true)
 
-    @model = controller.model
+    @model = controller.send(:model)
   end
 
   def input_for(name)
