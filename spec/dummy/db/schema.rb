@@ -22,6 +22,7 @@ ActiveRecord::Schema.define(version: 2022_03_29_114508) do
 
   create_table "users", force: :cascade do |t|
     t.string "email"
+    t.boolean "admin", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

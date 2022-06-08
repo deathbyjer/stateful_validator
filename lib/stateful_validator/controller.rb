@@ -193,7 +193,6 @@ module StatefulValidator::Controller
     return local_errors[opts[:index].to_i] if opts.key?(:index)
     return local_errors if is_list
 
-
     local_errors[opts[:index].to_i]
   end
 
