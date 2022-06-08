@@ -120,7 +120,7 @@ module StatefulValidator::Controller
     @sanitizers ||= { default: [], names: {} }
 
     # Lookup a generated sanitizer
-    found_sanitizers = StatefulValidator::Utilities.lookup @sanitizers, opts
+    found_sanitizers = StatefulValidator::Utilities.lookup @sanitizers, opts.merge(no_default: true)
     return found_sanitizers[0...-1] if found_sanitizers.present?
 
     # Find the correct sanitizer details
@@ -161,7 +161,7 @@ module StatefulValidator::Controller
     @validators ||= { default: [], names: {} }
 
     # Lookup a generated sanitizer
-    found_validators = StatefulValidator::Utilities.lookup @validators, opts
+    found_validators = StatefulValidator::Utilities.lookup @validators, opts.merge(no_default: true)
     return found_validators[0...-1] if found_validators.present?
 
     details = self.class._lookup_validator opts
@@ -185,13 +185,14 @@ module StatefulValidator::Controller
 
   def errors(opts = {})
     opts = clean_populate_block_options opts
-    is_list = self.class._lookup_sanitizer(opts)[:list]
+    is_list = self.class._lookup_sanitizer(opts)&.fetch(:list, false)
 
     local_errors = StatefulValidator::Utilities.get_or_set all_errors, opts, []
     local_errors[opts[:index].to_i] ||= {}
 
     return local_errors[opts[:index].to_i] if opts.key?(:index)
     return local_errors if is_list
+
 
     local_errors[opts[:index].to_i]
   end
@@ -206,7 +207,7 @@ module StatefulValidator::Controller
     return false if all_errors[:names].values.empty?
 
     all_errors[:names].values.any? do |errors|
-      errors.any?(&:any?)
+      errors.any? {|error| error&.any? }
     end
   end
 
@@ -359,7 +360,19 @@ module StatefulValidator::Controller
     # We need to always return something
     safe_params = params
     # If Parameters, then permit the parameters we need and conver to hash
-    safe_params = params.permit(key => {}).to_hash if params.is_a?(ActionController::Parameters)
+    if params.is_a?(ActionController::Parameters)
+      if params[key].is_a?(Array)
+        safe_params = params.require(key)
+        safe_params.map!(&:permit!)
+        safe_params.map!.with_index do |p, i| 
+          [i, p.to_hash] 
+        end
+
+        safe_params = { key => safe_params.to_h }
+      else
+        safe_params = params.permit(key => {}).to_hash
+      end
+    end
     # Get just the part of the has we need
     safe_params = safe_params[key.to_s] || safe_params[key.to_sym] if safe_params.is_a?(Hash)
     
