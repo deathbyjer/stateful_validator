@@ -42,6 +42,46 @@ RSpec.describe NamedController, type: :controller do
     end
   end
 
+  describe "globally scoped" do 
+    after(:each) { Post.delete_all }
+
+    it 'creates a simple post' do 
+      post :create_global_post, params: { title: "A title" }
+
+      expect(response.status).to be(201)
+    end
+
+    it 'fails on an activerecord error' do
+      post :create_global_post, params: { body: "Body Text" }
+      expect(response.status).to be(400)
+    end
+
+    it "check the validation block fails" do
+      post :create_global_post, params: { title: "Number 1!" }
+      expect(response.status).to be(400)
+    end
+
+    it "checks a stateful validation" do
+      params = {
+        current_user_id: admin.id,
+        title: "Number 1!" 
+      }
+      post :create_global_post, params: params
+      expect(response.status).to be(201)
+    end
+
+    it "checks a stateful validation" do
+      params = {
+        current_user_id: non_admin.id,
+        title: "Number 1!" 
+      }
+
+      post :create_global_post, params: params
+      expect(response.status).to be(400)
+    end
+
+  end
+
   describe 'iterating named' do 
     after(:each) { Post.delete_all }
 

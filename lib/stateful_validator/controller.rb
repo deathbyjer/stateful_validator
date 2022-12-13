@@ -84,7 +84,8 @@ module StatefulValidator::Controller
 
       {
         klass: klass,
-        param_key: options[:param_key] || klass.name.underscore.split("_")[0..-2].join("_").to_sym,
+        key: options[:param_key] || klass.name.underscore.split("_")[0..-2].join("_").to_sym,
+        top_level_params: options[:param_key] === false,
         ids: options[:ids],
         list: options[:list] ? true : false
       }.compact
@@ -129,7 +130,7 @@ module StatefulValidator::Controller
 
     # If we found details, then generate the sanitizers
     if details
-      param_list = param_list_for_population details[:param_key], details[:list]
+      param_list = param_list_for_population(key: details[:key], top_level_params: details[:top_level_params], list: details[:list])
 
       sanitizers = param_list.map do |p|
         sanitizer = details[:klass].new(p, controller: self)
@@ -355,12 +356,15 @@ module StatefulValidator::Controller
     options
   end
 
-  def param_list_for_population(key, list = false)
+  def param_list_for_population(key:, list: false, top_level_params: false)
     # We need to always return something
     safe_params = params
+
     # If Parameters, then permit the parameters we need and conver to hash
     if params.is_a?(ActionController::Parameters)
-      if params[key].is_a?(Array)
+      if top_level_params
+        safe_params = params.to_unsafe_hash
+      elsif params[key].is_a?(Array)
         safe_params = params.require(key)
         safe_params.map!(&:permit!)
         safe_params.map!.with_index do |p, i| 
@@ -372,8 +376,11 @@ module StatefulValidator::Controller
         safe_params = params.permit(key => {}).to_hash
       end
     end
+
     # Get just the part of the has we need
-    safe_params = safe_params[key.to_s] || safe_params[key.to_sym] if safe_params.is_a?(Hash)
+    unless top_level_params
+      safe_params = safe_params[key.to_s] || safe_params[key.to_sym] if safe_params.is_a?(Hash)
+    end
     
     return list ? [] : [nil] unless safe_params.present?
 

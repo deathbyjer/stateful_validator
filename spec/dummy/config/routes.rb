@@ -6,6 +6,7 @@ Rails.application.routes.draw do
 
   post 'named/user' => 'named#create_user'
   post 'named/post' => 'named#create_post'
+  post 'named/global_post' => 'named#create_global_post'
 
   post 'named/posts' => 'named#create_posts'
 end
