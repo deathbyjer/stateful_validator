@@ -10,7 +10,7 @@ class StatefulValidator::Sanitizer
   def initialize(params, options = {})
     self.params = params || {}
     self.controller = options[:controller]
-    self.model = options[:model]
+    self.model = options[:model] || self.controller&.model
   end
 
   def set_ids_from_params!(params, ids)
