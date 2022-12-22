@@ -1,5 +1,6 @@
 class UserController < ApplicationController
   sanitizer UserSanitizer, param_key: :user
+  sanitizer SpecialUserSanitizer, only: [:special_create], param_key: :user
   validator UserValidator
 
   def create
@@ -9,6 +10,17 @@ class UserController < ApplicationController
       model.save!
     end
 
+    errors? ? render_error(errors) : render_ok(model)
+  end
+
+  def special_create
+    
+    populate do |input|
+      self.model = User.new
+      model.email = input.email
+      model.save!
+    end
+    
     errors? ? render_error(errors) : render_ok(model)
   end
 
