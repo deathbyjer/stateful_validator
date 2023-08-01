@@ -24,6 +24,17 @@ class UserController < ApplicationController
     errors? ? render_error(errors) : render_ok(model)
   end
 
+  validate_with PrependedValidator
+  def prepended_create
+    validate do |input|
+      [
+        [:random, :a_prepended_check?, "check-one"]
+      ]
+    end 
+
+    errors? ? render_error(errors) : render_ok
+  end
+
   def validations
     validate do 
       [

@@ -9,7 +9,8 @@ gem 'rspec'
 
 gem 'listen'
 gem 'rails', '~>5.2'
-gem 'sqlite3', "~> 1.4"
+gem 'loofah', '~>2.19.1'
+gem 'sqlite3', "~> 1.4.1"
 
 group :test do 
 
