@@ -4,9 +4,30 @@ module StatefulValidator::Controller::Validate
   extend ActiveSupport::Concern
 
   module ClassMethods
+    def validator(klass = nil, options = {})
+      return _validators[nil] if klass.nil?
+
+      options = { action: options[:only] }.merge(options)
+
+      validator = __prepare_validator klass, options
+      StatefulValidator::Utilities.assign_to_lookup _validators, options, validator
+    end
+
+    def named_validator(name, klass = nil, options = {})
+      validator klass, options.merge(name: name)
+    end
+
+    def named_validators(name, klass = nil, options = {})
+      validator klass, options.merge(name: name, list: true)
+    end
+
     def action_validator(klass, options = {})
+      klass = _lookup_validator(name: klass) unless klass.is_a?(Module)
+
       @action_validator = klass ? __prepare_validator(klass, options) : nil
     end
+    
+    alias_method :validate_with, :action_validator
 
     def _lookup_validator(opts)
       StatefulValidator::Utilities.lookup _validators, opts
@@ -19,12 +40,10 @@ module StatefulValidator::Controller::Validate
     end
 
     def __prepare_validator(klass, options)
-      unless klass.ancestors.include?(StatefulValidator::Validator)
-        raise StatefulValidator::Errors::IllegalValidator
-      end
+      raise StatefulValidator::Errors::IllegalValidator unless is_validator?(klass)
 
       list_klass = defined?(klass::List) ? klass::List : nil
-      list_klass = nil unless list_klass&.ancestors&.include?(StatefulValidator::Validator)
+      list_klass = nil unless is_validator?(list_klass)
       list_klass ||= klass
 
       {
@@ -32,6 +51,10 @@ module StatefulValidator::Controller::Validate
         list_klass: list_klass,
         list: options[:list] ? true : false
       }.compact
+    end
+
+    def is_validator?(klass)
+      klass&.ancestors&.include?(StatefulValidator::Validator)
     end
   end
 
