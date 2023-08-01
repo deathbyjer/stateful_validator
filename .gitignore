@@ -8,5 +8,5 @@
 /tmp/
 /db/*.sqlite3
 /vendor/bundle
-/spec/dummy/db
-/spec/dummy/log
+/spec/dummy/db*
+/spec/dummy/log*
