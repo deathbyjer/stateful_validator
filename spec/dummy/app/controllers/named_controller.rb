@@ -72,4 +72,18 @@ class NamedController < ApplicationController
 
     errors? ? render_error(errors(:posts)) : render_ok(@models)
   end
+
+  def check_post_list
+    @models = []
+
+    populate_for_all(:posts) do |inputs|
+      inputs.each do |input| 
+        @models << ( model = Post.new)
+        model.title = input.title
+        model.save!
+      end
+    end
+
+    errors? ? render_error(errors(:posts)) : render_ok(@models)
+  end
 end

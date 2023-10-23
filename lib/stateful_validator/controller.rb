@@ -43,6 +43,24 @@ module StatefulValidator::Controller
     end
   end
 
+  def populate_for_all(opts = {}, alt_opts = {}, &block)
+    return if has_errors?
+
+    opts = clean_populate_block_options opts, alt_opts
+
+    wrap_populate_block_inside_transaction do
+      begin
+        block.call(sanitizers(opts))
+      rescue StatefulValidator::ValidationError => e
+        errors(opts.merge(index: :all)).merge! e.errors
+      rescue ActiveRecord::RecordInvalid => e
+        errors(opts.merge(index: :all)).merge! e.record.errors
+      end
+
+      raise ActiveRecord::Rollback unless errors(opts.merge(index: :all)).empty?
+    end
+  end
+
   def populate_for_each(opts = {}, alt_opts = {}, &block)
     return if has_errors?
 
@@ -111,12 +129,12 @@ module StatefulValidator::Controller
         safe_params = params.require(key)
         safe_params.map!(&:permit!)
         safe_params.map!.with_index do |p, i| 
-          [i, p.to_hash] 
+          [i, p.to_hash.with_indifferent_access] 
         end
 
-        safe_params = { key => safe_params.to_h }
+        safe_params = { key => safe_params.to_h.with_indifferent_access }
       else
-        safe_params = params.permit(key => {}).to_hash
+        safe_params = params.permit(key => {}).to_hash.with_indifferent_access
       end
     end
 
@@ -127,13 +145,13 @@ module StatefulValidator::Controller
     
     return list ? [] : [nil] unless safe_params.present?
 
-    return safe_params if safe_params.is_a?(Array)
+    return safe_params.map{|p| p.is_a?(Hash) ? p.with_indifferent_access : p } if safe_params.is_a?(Array)
 
     return [safe_params] unless safe_params.is_a?(Hash)
-    return [safe_params.transform_keys(&:to_sym)] unless list
+    return [safe_params.with_indifferent_access] unless list
 
     safe_params.to_a.map do |k, p|
-      { id: k }.merge(p).transform_keys(&:to_sym)
+      { id: k }.merge(p).with_indifferent_access
     end
   end
 end

@@ -10,4 +10,5 @@ Rails.application.routes.draw do
   post 'named/global_post' => 'named#create_global_post'
 
   post 'named/posts' => 'named#create_posts'
+  post 'named/posts_list' => 'named#check_post_list'
 end

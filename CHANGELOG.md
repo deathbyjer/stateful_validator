@@ -1,6 +1,9 @@
 # Changelog
 
 Will try to document notable changes and additions in this document.
+## 0.4.0 - 2023-10-23
+Added `populate_for_all` that will group together sanitizers into an array, one for each entry. This is opposite of `populate_for_each`
+Added an extra error area, after the last sanitize'd item, to gather errors referenced by `populate_for_all`
 
 ## 0.2.0 - 2022-06-08
 

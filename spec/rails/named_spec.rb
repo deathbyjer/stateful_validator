@@ -116,5 +116,33 @@ RSpec.describe NamedController, type: :controller do
       expect(body.first).to be_empty
       expect(body.last).to have_key("title")
     end
+
+    it 'can handle arrays of posts' do 
+      params = {
+        posts: [
+          { title: "A title"},
+          { title: "A second title 1"}
+        ]
+      }
+
+      post :check_post_list, params: params
+
+      expect(response.status).to be(201)
+    end
+
+    it 'can handle arrays of posts' do 
+      params = {
+        posts: [
+          { title: "A title"},
+          { title: ""}
+        ]
+      }
+
+      post :check_post_list, params: params
+
+      expect(response.status).to be(400)
+      body = JSON.parse response.parsed_body
+      expect(body.length).to be(3)
+    end
   end
 end

@@ -125,6 +125,8 @@ module StatefulValidator::Controller::Validate
     is_list = self.class._lookup_sanitizer(opts)&.fetch(:list, false)
 
     local_errors = StatefulValidator::Utilities.get_or_set all_errors, opts, []
+    opts[:index] = sanitizers(opts).count if opts[:index] == :all
+
     local_errors[opts[:index].to_i] ||= {}
 
     return local_errors[opts[:index].to_i] if opts.key?(:index)
