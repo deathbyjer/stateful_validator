@@ -73,7 +73,7 @@ module StatefulValidator::Controller
         local_errors = errors(opts.merge(index: index))
         begin
           block.call(sanitizer)
-        rescue ValidationError => e
+        rescue StatefulValidator::ValidationError => e
           local_errors.merge! e.errors
         rescue ActiveRecord::RecordInvalid => e
           local_errors.merge! e.record.errors
